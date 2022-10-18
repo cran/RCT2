@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Statistical Inference and Power Analysis for Direct and Spillover Effects</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Statistical Inference and Power Analysis
+for Direct and Spillover Effects</h1>
+
+
+
+<p>This vignette addresses the usage of the functions involved in
+statistical inference and power analysis for the direct and spillover
+effects in two-stage randomized experiments motivated by the JD data
+set.</p>
+<div id="study-design" class="section level2">
+<h2>Study Design</h2>
+<p>In 2007, the ministry in charge of employment in France launched a
+public employment integration service contract for young graduates
+seeking employment. A randomized experiment of this job placement
+assistance program was conducted and the methods in this package can be
+used to analyze the data. The following examples focus on two specific
+outcomes: fixed-term contract of six months or more (LTFC) and permanent
+contract (PC).</p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>The data set is a subset of the original JD data set and includes the
+following variables:</p>
+<p><code>anonale</code>: local employment agency</p>
+<p><code>tempsc_av</code>: full-time work (at time of assignment)</p>
+<p><code>assigned</code>: 1 if the individual is assigned to treatment,
+0 otherwise</p>
+<p><code>pct0</code>: share of the local population treated</p>
+<p><code>cdi</code>: binary variable for whether the individual works on
+a permanent contract, 8 months after the assignment</p>
+<p><code>cdd6m</code>: binary variable for whether the individual works
+in CDD (LTFC-time contract) for more than 6 months, 8 months after the
+assignment</p>
+<p><code>emploidur</code>: binary variable for whether the individual
+works on a permanent or LTFC-term contract for more than 6 months, 8
+months after the assignment</p>
+<p><code>tempsc</code>: binary variable for whether the individual works
+full time, 8 months after the assignment</p>
+<p><code>salaire</code>: individual’s salary in Euros.</p>
+</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>The relevant functions for this analysis are the following:</p>
+<ol style="list-style-type: decimal">
+<li><p><code>ZSRE</code>: returns a list of <code>Z</code> the vector of
+the desired binary treatment assignment variable</p></li>
+<li><p><code>YSRE</code>: returns a list of <code>Y</code> the vector of
+the outcomes for a desired variable of interest.</p></li>
+<li><p><code>CalAPO</code>: returns a list of point estimates and
+variances for the average potential outcomes, unit level direct effect,
+marginal direct effect, and unit level spillover effect.</p></li>
+<li><p><code>Test2SRE</code>: returns the rejection region for the
+desired test. This function takes in the data, the effect type
+(i.e. direct effect, marginal direct effect, or spillover effect) and
+outputs the rejection region at the desired significance level.</p></li>
+<li><p><code>calpara</code>: returns a list of the estimated
+within-cluster variance, between cluster variance, intra-class
+correlation coefficient, and average of the assignment vector which are
+necessary for the <code>Calsamplesize</code></p></li>
+<li><p><code>Calsamplesize</code>: returns a list of the necessary total
+number of clusters in order to achieve a given power level at a given
+significance level for the three types of effects.</p></li>
+</ol>
+</div>
+<div id="functions" class="section level2">
+<h2>Functions</h2>
+<p>First, import the RCT2 library and load the relevant data set.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RCT2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(jd)</span></code></pre></div>
+<div id="calapo" class="section level3">
+<h3>CalAPO</h3>
+<p>In order to calculate a list of point estimates and variances for an
+effect of interest, run the <code>CalAPO</code> command. It is necessary
+first to create the vector of treatment assignments, <code>A</code>,
+which will depend on the study design. In this experiment, there are
+three treatment assignment mechanisms with treated probabilities 25%,
+50%, and 75% respectively.</p>
+<p>Then, run the <code>CalAPO</code> command, which takes in the vector
+of treatment assignments, the assignment mechanism vector, and the
+vector of outcomes for the variable of interest which is
+<code>Y.LTFC</code> in this case. We see that the estimated average
+potential outcome for long-term fixed contracts is given by
+<code>Y.hat</code>. As stated in the paper, we also have the results for
+the estimated direct effects under the three treatment mechanisms
+(<code>ADE.est</code>), the estimated marginal direct effect
+(<code>MDE.est</code>), and the estimated spillover effects
+(<code>ASE.est</code>). We also have the estimated covariance matrices
+for the average potential outcomes, the estimated direct effect,
+estimated marginal effect, and estimated spillover effects.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data_LTFC <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(jd<span class="sc">$</span>assigned, jd<span class="sc">$</span>pct0, jd<span class="sc">$</span>cdd6m, jd<span class="sc">$</span>anonale)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_LTFC) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Z&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;id&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">CalAPO</span>(data_LTFC)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">CalAPO</span>(data_LTFC))</span></code></pre></div>
+<pre><code>## [[1]]
+##                          Potential Outcome Estimates
+## treated group 1 estimate                   0.2109006
+## control group 1 estimate                   0.1953872
+## treated group 2 estimate                   0.2071030
+## control group 2 estimate                   0.2027447
+## treated group 3 estimate                   0.2018187
+## control group 3 estimate                   0.2243082
+## 
+## $Y.covariance
+##               [,1]          [,2]         [,3]         [,4]          [,5]
+## [1,]  9.352489e-05 -1.196691e-05 0.000000e+00 0.000000e+00  0.000000e+00
+## [2,] -1.196691e-05  1.034387e-04 0.000000e+00 0.000000e+00  0.000000e+00
+## [3,]  0.000000e+00  0.000000e+00 1.147296e-04 2.025355e-05  0.000000e+00
+## [4,]  0.000000e+00  0.000000e+00 2.025355e-05 7.940618e-05  0.000000e+00
+## [5,]  0.000000e+00  0.000000e+00 0.000000e+00 0.000000e+00  9.680927e-05
+## [6,]  0.000000e+00  0.000000e+00 0.000000e+00 0.000000e+00 -3.197198e-05
+##               [,6]
+## [1,]  0.000000e+00
+## [2,]  0.000000e+00
+## [3,]  0.000000e+00
+## [4,]  0.000000e+00
+## [5,] -3.197198e-05
+## [6,]  2.276049e-04
+## 
+## [[3]]
+##                    Average Direct Effect
+## assignment group 1           0.015513434
+## assignment group 2           0.004358247
+## assignment group 3          -0.022489545
+## 
+## $ADE.covariance
+##              [,1]         [,2]         [,3]
+## [1,] 0.0002208974 0.0000000000 0.0000000000
+## [2,] 0.0000000000 0.0001536287 0.0000000000
+## [3,] 0.0000000000 0.0000000000 0.0003883582
+## 
+## [[5]]
+##                                       Average Spillover Effect
+## treatment group under assignments 1 2              0.003797605
+## treatment group under assignments 2 3              0.005284307
+## control group under assignments 1 2               -0.007357582
+## control group under assignments 2 3               -0.021563484
+## 
+## $ASE.covariance
+##               [,1]          [,2]          [,3]          [,4]
+## [1,]  2.082545e-04 -1.147296e-04  8.286640e-06 -2.025355e-05
+## [2,] -1.147296e-04  2.115389e-04 -2.025355e-05 -1.171843e-05
+## [3,]  8.286640e-06 -2.025355e-05  1.828448e-04 -7.940618e-05
+## [4,] -2.025355e-05 -1.171843e-05 -7.940618e-05  3.070111e-04
+## 
+## [[7]]
+##   Marginal Direct Effect
+## 1          -0.0008726215
+## 
+## $MDE.covariance
+##              [,1]
+## [1,] 8.476492e-05</code></pre>
+<p>Similarly, we can run this on the permanent contracts.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data_perm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(jd<span class="sc">$</span>assigned, jd<span class="sc">$</span>pct0, jd<span class="sc">$</span>cdi, jd<span class="sc">$</span>anonale)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_perm) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Z&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;Y&quot;</span>, <span class="st">&quot;id&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">CalAPO</span>(data_perm)</span></code></pre></div>
+</div>
+<div id="test2sre" class="section level3">
+<h3>Test2SRE</h3>
+<p>We can also perform hypothesis tests on this data by using the
+<code>Test2SRE</code> function. THE <code>Test2SRE</code> function takes
+in <code>Z</code>, <code>A</code>, <code>Y</code>, as before, and also
+takes in an extra argument <code>effect</code>, where the desired effect
+should be specified (either ADE for direct effect, MDE for marginal
+direct effect, or ASE for spillover effect). The function returns
+<code>TRUE</code> if the hypothesis should be rejected, and
+<code>FALSE</code> otherwise. The default significance level is set to
+0.05, but may be changed by altering the <code>alpha</code>
+argument.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Test2SRE</span>(data_LTFC, <span class="at">effect=</span><span class="st">&quot;MDE&quot;</span>, <span class="at">alpha=</span><span class="fl">0.05</span>)</span></code></pre></div>
+<pre><code>## [1] FALSE</code></pre>
+</div>
+<div id="calpara-and-calsamplesize" class="section level3">
+<h3>Calpara and Calsamplesize</h3>
+<p>Lastly, we can perform sample size calculations for the sample size
+needed for a given power at a given significance level. First, we call
+the <code>calpara</code> function to calculate the necessary parameters
+for the sample size calculation, including the within-class and between
+class variances and the intra-class correlation coefficient. The effect
+size and the assignment mechanism also need to be specified based on the
+study design. In this case, <code>mu</code> is the effect size and
+<code>qa</code> is the vector of probabilities of being assigned to one
+of the three assignment mechanisms.</p>
+<p>Then, call the <code>calpara</code> command to calculate the
+within-class and between class variances, and the intra-class
+correlation coefficient.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate variances for permanent contract</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>var.perm <span class="ot">&lt;-</span> <span class="fu">calpara</span>(data_perm)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate variances for long term fixed contract</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>var.LTFC <span class="ot">&lt;-</span> <span class="fu">calpara</span>(data_LTFC)</span></code></pre></div>
+<p>The elements of the output of <code>calpara</code> can be accessed as
+below. For example, to retrieve the total variance of the potential
+outcomes for the permanent contracts and long-term fixed contracts, the
+following code can be run:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sigma.perm <span class="ot">&lt;-</span> var.perm<span class="sc">$</span>sigma.tot</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sigma.LTFC <span class="ot">&lt;-</span> var.LTFC<span class="sc">$</span>sigma.tot</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(sigma.perm)</span></code></pre></div>
+<pre><code>## [1] 0.1951648</code></pre>
+<p>Then, we specify the effect size and use the
+<code>Calsamplesize</code> function to calculate the appropriate sample
+sizes for the permanent contract and the LTFC. The default
+<code>alpha</code>(significance level) and <code>beta</code> (power) are
+set at 0.05 and 0.2 respectively.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">### effect size and assignment mechanism</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fl">0.03</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>qa <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>,<span class="dv">3</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate sample size for the permanent contract</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Permanent Contract:&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Permanent Contract:&quot;</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">Calsamplesize</span>(data_LTFC, <span class="fl">0.03</span>, qa, <span class="fl">0.05</span>, <span class="fl">0.2</span>))</span></code></pre></div>
+<pre><code>##                          [,1]     [,2]     [,3]
+## Assignment Mechanism   1.0000  2.00000   3.0000
+## Number of Clusters   428.4264 96.59406 511.5405</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate sample size for the long term fixed contract</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Long Term Fixed Contract:&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Long Term Fixed Contract:&quot;</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">Calsamplesize</span>(data_perm, <span class="fl">0.03</span>, qa, <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>))</span></code></pre></div>
+<pre><code>##                          [,1]     [,2]     [,3]
+## Assignment Mechanism   1.0000   2.0000   3.0000
+## Number of Clusters   515.6595 116.4777 614.2199</code></pre>
+<p>From the results, we can see the necessary total number of clusters
+for each assignment mechanism with size <code>n.avg</code> needed to
+detect a specific alternative at a certain power and significance
+level.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Causal Inference with Inteference</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Causal Inference with Inteference</h1>
+
+
+
+<div id="rct2" class="section level2">
+<h2>RCT2</h2>
+<p>This package provides various statistical methods for designing and
+analyzing two-stage randomized controlled trials. Two-stage randomized
+controlled trials can be used to estimate spillover effects as well as
+direct treatment effects.</p>
+</div>
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>The methods in this package address situations were some control
+units decide to take the treatment while others in the treatment group
+refuse to receive one. Often, researchers cannot force experimental
+subjects to adhere to protocol and the methods in this package allow
+analysis of two-stage randomized experiments with both interference and
+noncompliance.</p>
+</div>
+<div id="study-design" class="section level2">
+<h2>Study Design</h2>
+<p>RSBY provides access to an insurance plan that covers all
+pre-existing diseases and there is no age limit of the beneficiaries.
+The data was collected through a randomized trial to determine whether
+RSBY increases access to hospitalization (and health) and reduces
+impoverishment due to high medical expenses. The Indian governemtn
+announced a new scheme to build on RSBY and provide coverage for almost
+500 million Indians, but has not yet decided its design or how much to
+fund it. Spillover effects are of concern because formal insurance may
+crow our informal insurance; the enrollment in RSBY by one household may
+depend on the treatment assignment of other households. Additionally, we
+must address noncompliance because some households in the treatment
+group decided not to enroll in RSBY while some in the control group were
+able to join the insurance program.</p>
+<p>The evaluation study is based on a total of 11089 above poverty line
+households in two districts of Karnataka State with no pre-existing
+health insurance coverage living within 25 km of a RSY empaneled
+hospital. A two-stage randomzied design was employed to study both
+direct and spillover over effects of RSBY. In the first stage, 219
+randomly selected villages were assigned to the “High” treatment
+assignment mechanism and the rest were assigned to the “Low” treatment
+assignment mechanism. In the second stage, 80% of the households in the
+“High” assignment mechanism within a cluster were completely randomly
+assigned to the treatment condition, while the rest of the households
+were assigned to the control group. In contrast, under the “Low”
+assignment mechanism, 40% of the households within a cluster were
+completely randomly assigned to the treatment condition.</p>
+<p>The households in the treatment group were given RSBY for free,
+whereas some households in the control group could buy RSBY for around
+INR 200. Upon being informed of the assignment treatment conditions,
+households were given the opportunities to enroll in RSBY from April to
+May, 2015. 18 months later the post-treatment survey was carried out, in
+which a variety of outcomes were measured.</p>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="18%" />
+<col width="10%" />
+<col width="8%" />
+<col width="20%" />
+<col width="16%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Village-level arms</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Household-level arms</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mechanisms</td>
+<td>Number of villages</td>
+<td>Treatment</td>
+<td>Control</td>
+<td>Number of households</td>
+<td>Enrollment rates</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>High</td>
+<td>219</td>
+<td>80%</td>
+<td>20%</td>
+<td>5,714</td>
+<td>67.0%</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Low</td>
+<td>216</td>
+<td>40%</td>
+<td>60%</td>
+<td>5,373</td>
+<td>46.2%</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>The data set is a subset of data from the randomized evaluation of
+the India’s National Health Insurance Program (RSBY). The data initially
+contained six variables as listed below and after processing the for the
+purposes of the package, there remain four variables of interest which
+we remained for the purposes of analysis:</p>
+<p><code>Z</code>: treatment status</p>
+<p><code>A</code>: treatment assignment mechanism</p>
+<p><code>D</code>: enrolled in RSBY</p>
+<p><code>Y</code>: hospital expenditure (the outcome variable).</p>
+</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>There are three functions in this package:</p>
+<ol style="list-style-type: decimal">
+<li><p><code>CADErand</code>: computes the point estimates and variance
+estimates of the complier average direct effect (CADE) and the complier
+average spillover effect (CASE). The estimators calculated using this
+function are either individual weighted or cluster-weighted. The point
+estimates and variances of ITT effects are also included.</p></li>
+<li><p><code>CADEreg</code>: computes the point estimates of the
+complier average direct effect (CADE) and four different variance
+estimates: the HC2 variance, the cluster-robust variance, the
+cluster-robust HC2 variance and the variance proposed in the
+reference.</p></li>
+<li><p><code>CADEparamreg</code>: computes the point estimates of the
+complier average direct effect (CADE) and the complier average spillover
+effect (CASE) following the model-based approach presented in the
+appendix.</p></li>
+</ol>
+</div>
+<div id="functions" class="section level2">
+<h2>Functions</h2>
+<p>Before we begin, lets load the library and our example data set into
+R.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RCT2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(india)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>india<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">factor</span>(india<span class="sc">$</span>id)</span></code></pre></div>
+<div id="caderand" class="section level3">
+<h3>CADErand</h3>
+<p>To run the CADErand command, simply type in the following:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rand <span class="ot">&lt;-</span> <span class="fu">CADErand</span>(india, <span class="fl">0.95</span>) </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rand)</span></code></pre></div>
+<pre><code>##    names reps2     estimate        variance        stds       lcis       rcis
+## 1   CADE     0   1984.42477   1474406.32319  1214.25134   1908.283   2060.567
+## 2   CADE     1  -1648.53065   1128010.63709  1062.07845   -1715.13  -1581.931
+## 3   CASE     0   6568.04971 335327387.08457 18311.94657   5419.767   7716.333
+## 4   CASE     1 -15900.39663 237301575.94459 15404.59594 -16866.369 -14934.424
+## 5    DEY     0    875.43729    280649.14689   529.76329    842.218    908.657
+## 6    DEY     1   -795.24119    263884.36586   513.69676   -827.453   -763.029
+## 7    DED     0      0.44115         0.00044     0.02099     242.86    350.527
+## 8    DED     1      0.48239         0.00052     0.02277  -1425.617  -1322.353
+## 9    SEY     0    296.69351    737020.66452   858.49908       0.44      0.442
+## 10   SEY     1  -1373.98496    677958.83661   823.38256      0.481      0.484
+## 11   SED     0      0.04517         0.00077     0.02778      0.043      0.047
+## 12   SED     1      0.08641         0.00281     0.05298      0.083       0.09</code></pre>
+<p>Note that you can specify the confidence interval level of your
+choosing with the parameter <code>ci</code> in the <code>CADErand</code>
+function. You can access any specific value with the <code>$</code>
+operator. For example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rand<span class="sc">$</span>CADE</span></code></pre></div>
+<pre><code>##      A_cluster0 A_cluster1
+## [1,]   1984.425  -1648.531</code></pre>
+<p>allows you to access just the <code>CADE</code> estimates.</p>
+</div>
+<div id="cadereg" class="section level3">
+<h3>CADEreg</h3>
+<p>In order to analyze our data using a regression based method, we use
+the CADEreg function.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">CADEreg</span>(india, <span class="at">ci.level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(reg)</span></code></pre></div>
+<pre><code>## [[1]]
+##    name          estimate           left CI         right CI
+## 1 CADE1 -485.205567558982 -2604427.23867043 2603456.82753532
+## 2 CADE0  3751.62334625516 -4491562.03320184 4490591.62206672
+## 
+## [[2]]
+##                             var(CADE1) var(CADE0)
+## cluster_robust_variance        1844654    2692774
+## HC2_variance                   1759371    3036458
+## cluster_robust_HC2_variance    1853609    2705597
+## individual_variance            1307332    2754695
+## proposed_variance              1583084    2730381</code></pre>
+<p>This gives us the point estimates of CADE1 and CADE0 and their
+confidence intervals, and various types of variances for the CADE1 and
+CADE0. We can again access these by using the dollar sign notation. Note
+that we can use the parameter to specify the confidence interval level
+(i.e. 95%, 90%).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>reg<span class="sc">$</span>CADE1</span></code></pre></div>
+<pre><code>##         M 
+## -485.2056</code></pre>
+</div>
+<div id="cadeparamreg" class="section level3">
+<h3>CADEparamreg</h3>
+<p>CADEparamreg offers a regression-based method for the computing the
+ITT effects and the average direct effects and spillover effects.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>paramreg <span class="ot">&lt;-</span> <span class="fu">CADEparamreg</span>(india, <span class="at">assign.prob =</span> <span class="fl">0.8</span>, <span class="at">ci.level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(paramreg)</span></code></pre></div>
+<pre><code>## [[1]]
+##   Method Treatment Control  Treatment CI  Control CI
+## 1 ITT DE     -1253    1447    -2646, 139   -94, 2988
+## 2  IV DE     -6013    8724  -4631, -1131 -1991, 1630
+## 3 ITT SE     -2881    -180   -11872, 139   407, 2988
+## 4  IV SE    -11715    3022 -19445, -1131 -4927, 1630
+## 
+## [[2]]
+##              ITT pvalues  ITT tstat IV pvalues   IV tstat
+## (Intercept) 6.731101e-31 11.5966578 0.11434527  1.5790968
+## Z           2.917099e-02  2.1814799 0.02241845  2.2835546
+## A           1.148445e+00 -0.1871396 0.47074057  0.7213018
+## Z:A         1.972694e+00 -2.2074303 1.97260512 -2.2061660</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(paramreg)[[<span class="dv">1</span>]]</span></code></pre></div>
+<pre><code>##   Method Treatment Control  Treatment CI  Control CI
+## 1 ITT DE     -1253    1447    -2646, 139   -94, 2988
+## 2  IV DE     -6013    8724  -4631, -1131 -1991, 1630
+## 3 ITT SE     -2881    -180   -11872, 139   407, 2988
+## 4  IV SE    -11715    3022 -19445, -1131 -4927, 1630</code></pre>
+<p>Note how we use to specify the assignment probability to the
+different assignment mechanisms. We also use again to specify the
+confidence intervals.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
